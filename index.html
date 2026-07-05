@@ -1,0 +1,1897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ICS to CSV Converter: Convert Calendar Files to Spreadsheets, Free</title>
+<meta name="description" content="Convert an ICS or iCalendar file to CSV in your browser. Handles recurring events, timezones, and Google Calendar exports. Nothing is uploaded, so it's free with no limits.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FAFAF7;
+    --paper-alt:#F1EFE9;
+    --ink:#1C1E22;
+    --slate:#5B6270;
+    --slate-light:#8A8F99;
+    --line:#DEDACF;
+    --line-strong:#C7C2B4;
+    --accent:#2451B0;
+    --accent-ink:#173B85;
+    --accent-soft:#E7EDF9;
+    --good:#2F7A4F;
+    --good-soft:#E6F1EA;
+    --warn:#9A5B12;
+    --warn-soft:#F7EDDD;
+    --mono-bg:#EFEDE5;
+    --radius:3px;
+    --maxw:760px;
+    font-size:16px;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
+  }
+
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  code, .mono{
+    font-family:'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace;
+  }
+
+  a{ color:var(--accent); }
+  a:hover{ color:var(--accent-ink); }
+
+  :focus-visible{
+    outline:2px solid var(--accent);
+    outline-offset:2px;
+  }
+
+  .wrap{
+    max-width:var(--maxw);
+    margin:0 auto;
+    padding:0 24px;
+  }
+  .wrap-wide{
+    max-width:920px;
+    margin:0 auto;
+    padding:0 24px;
+  }
+
+  /* ---------- File badge / signature mark ---------- */
+  .filebadge{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    font-family:'IBM Plex Mono', monospace;
+    font-weight:600;
+    font-size:13px;
+    letter-spacing:0.02em;
+  }
+  .filebadge .chip{
+    display:inline-block;
+    padding:3px 8px;
+    border:1px solid var(--line-strong);
+    border-radius:2px;
+    background:var(--mono-bg);
+    color:var(--ink);
+  }
+  .filebadge .chip.to{
+    background:var(--accent-soft);
+    border-color:var(--accent);
+    color:var(--accent-ink);
+  }
+  .filebadge .arrow{ color:var(--slate-light); }
+
+  /* ---------- Header ---------- */
+  header.site{
+    border-bottom:1px solid var(--line);
+    background:var(--paper);
+    position:sticky;
+    top:0;
+    z-index:20;
+  }
+  .nav-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:16px 24px;
+    max-width:920px;
+    margin:0 auto;
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    text-decoration:none;
+    color:var(--ink);
+  }
+  .brand-name{
+    font-weight:600;
+    font-size:15px;
+    color:var(--ink);
+  }
+  nav.primary{
+    display:flex;
+    gap:28px;
+  }
+  nav.primary a{
+    color:var(--slate);
+    text-decoration:none;
+    font-size:14.5px;
+    font-weight:500;
+  }
+  nav.primary a:hover{ color:var(--ink); }
+  .nav-toggle{ display:none; }
+
+  @media (max-width: 640px){
+    nav.primary{
+      display:none;
+    }
+  }
+
+  /* ---------- Hero ---------- */
+  .hero{
+    padding:56px 0 48px;
+    border-bottom:1px solid var(--line);
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--slate);
+    margin-bottom:18px;
+  }
+  h1{
+    font-size:2.35rem;
+    line-height:1.18;
+    margin:0 0 16px;
+    font-weight:700;
+    letter-spacing:-0.01em;
+  }
+  .hero p.sub{
+    font-size:1.09rem;
+    color:var(--slate);
+    max-width:560px;
+    margin:0 0 32px;
+  }
+
+  /* ---------- Converter panel ---------- */
+  .panel{
+    border:1px solid var(--line-strong);
+    background:#fff;
+    border-radius:var(--radius);
+  }
+
+  .dropzone{
+    margin:0;
+    padding:40px 24px;
+    text-align:center;
+    border-bottom:1px dashed var(--line-strong);
+    cursor:pointer;
+    transition:background-color .12s ease, border-color .12s ease;
+  }
+  .dropzone.drag{
+    background:var(--accent-soft);
+    border-color:var(--accent);
+  }
+  .dropzone .dz-icon{
+    width:34px;height:34px;margin:0 auto 14px;
+    color:var(--slate-light);
+  }
+  .dropzone .dz-main{
+    font-size:1.02rem;
+    font-weight:600;
+    margin-bottom:4px;
+  }
+  .dropzone .dz-main .browse{
+    color:var(--accent);
+    text-decoration:underline;
+  }
+  .dropzone .dz-sub{
+    font-size:0.88rem;
+    color:var(--slate);
+  }
+  input[type="file"]{ display:none; }
+
+  .filelist{
+    padding:14px 24px;
+    border-bottom:1px solid var(--line);
+    display:none;
+  }
+  .filelist.show{ display:block; }
+  .file-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:8px 0;
+    border-bottom:1px solid var(--line);
+    font-size:0.9rem;
+  }
+  .file-row:last-child{ border-bottom:none; }
+  .file-row .fname{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.83rem;
+    color:var(--ink);
+    word-break:break-all;
+  }
+  .file-row .fmeta{
+    color:var(--slate);
+    font-size:0.8rem;
+    margin-left:10px;
+    flex-shrink:0;
+  }
+  .file-row .fremove{
+    background:none;border:none;color:var(--slate);cursor:pointer;
+    font-size:0.85rem;text-decoration:underline;margin-left:12px;flex-shrink:0;
+    font-family:inherit;
+  }
+  .file-row.error .fname{ color:var(--warn); }
+  .file-row .ferror{
+    color:var(--warn); font-size:0.78rem; display:block; margin-top:2px;
+  }
+  .file-row .fvalidate{
+    background:none;border:none;color:var(--accent);cursor:pointer;
+    font-size:0.85rem;text-decoration:underline;margin-left:12px;flex-shrink:0;
+    font-family:inherit;
+  }
+
+  .validate-result{
+    display:none;
+    margin:2px 0 10px;
+    padding:10px 12px;
+    background:var(--paper-alt);
+    border:1px solid var(--line);
+    border-radius:2px;
+    font-size:0.82rem;
+  }
+  .validate-result.show{ display:block; }
+  .validate-result .vsummary{ font-weight:600; margin-bottom:6px; }
+  .validate-result .vsummary.pass{ color:var(--good); }
+  .validate-result .vsummary.fail{ color:var(--warn); }
+  .validate-result .vcheck{ padding:2px 0; color:var(--slate); }
+  .validate-result .vcheck.pass:before{ content:"\2713  "; color:var(--good); }
+  .validate-result .vcheck.fail:before{ content:"\2717  "; color:var(--warn); }
+  .validate-result .vfull{
+    display:inline-block;
+    margin-top:8px;
+    font-size:0.8rem;
+  }
+
+  .options{
+    padding:18px 24px;
+    border-bottom:1px solid var(--line);
+    display:none;
+  }
+  .options.show{ display:block; }
+
+  .opt-group{ margin-bottom:18px; }
+  .opt-group:last-child{ margin-bottom:0; }
+  .opt-label{
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    color:var(--slate);
+    font-weight:600;
+    margin-bottom:10px;
+  }
+  .radio-row{
+    display:flex;
+    gap:20px;
+    flex-wrap:wrap;
+  }
+  .radio-row label{
+    display:flex;align-items:center;gap:6px;
+    font-size:0.9rem;
+    cursor:pointer;
+  }
+  .check-row{
+    display:flex;align-items:center;gap:8px;
+    font-size:0.9rem;
+    cursor:pointer;
+  }
+  .opt-hint{
+    font-size:0.78rem;
+    color:var(--slate-light);
+    margin-top:6px;
+  }
+
+  .cols{
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+  }
+  .col-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:5px 6px;
+    border-radius:2px;
+  }
+  .col-row:hover{ background:var(--paper-alt); }
+  .col-row label{
+    flex:1;
+    font-size:0.9rem;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    cursor:pointer;
+  }
+  .col-row .colkey{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.76rem;
+    color:var(--slate-light);
+  }
+  .col-move{
+    display:flex;
+    gap:2px;
+  }
+  .col-move button{
+    width:22px;height:22px;
+    border:1px solid var(--line);
+    background:#fff;
+    border-radius:2px;
+    cursor:pointer;
+    color:var(--slate);
+    font-size:11px;
+    line-height:1;
+    padding:0;
+  }
+  .col-move button:hover{ background:var(--paper-alt); }
+  .col-move button:disabled{ opacity:0.3; cursor:default; }
+
+  .actions{
+    padding:18px 24px;
+    display:flex;
+    align-items:center;
+    gap:16px;
+    flex-wrap:wrap;
+  }
+
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:var(--accent);
+    color:#fff;
+    border:none;
+    padding:12px 22px;
+    font-size:0.95rem;
+    font-weight:600;
+    border-radius:2px;
+    cursor:pointer;
+    font-family:inherit;
+  }
+  .btn:hover{ background:var(--accent-ink); }
+  .btn:disabled{ background:var(--line-strong); color:var(--slate); cursor:not-allowed; }
+  .btn.secondary{
+    background:#fff;
+    color:var(--ink);
+    border:1px solid var(--line-strong);
+  }
+  .btn.secondary:hover{ background:var(--paper-alt); }
+
+  .microcopy{
+    font-size:0.82rem;
+    color:var(--slate);
+  }
+
+  .status-line{
+    font-size:0.85rem;
+    color:var(--good);
+    display:none;
+  }
+  .status-line.show{ display:block; }
+
+  /* ---------- Preview table ---------- */
+  .preview-wrap{
+    padding:18px 24px 24px;
+    border-top:1px solid var(--line);
+    display:none;
+  }
+  .preview-wrap.show{ display:block; }
+  .preview-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom:10px;
+    flex-wrap:wrap;
+    gap:6px;
+  }
+  .preview-head h3{
+    font-size:0.95rem;
+    margin:0;
+    font-weight:600;
+  }
+  .preview-count{
+    font-size:0.82rem;
+    color:var(--slate);
+  }
+  .table-scroll{
+    overflow-x:auto;
+    border:1px solid var(--line);
+  }
+  table.preview{
+    border-collapse:collapse;
+    width:100%;
+    font-size:0.82rem;
+    min-width:600px;
+  }
+  table.preview th{
+    text-align:left;
+    background:var(--paper-alt);
+    padding:8px 10px;
+    font-weight:600;
+    border-bottom:1px solid var(--line-strong);
+    white-space:nowrap;
+  }
+  table.preview td{
+    padding:7px 10px;
+    border-bottom:1px solid var(--line);
+    color:var(--slate);
+    max-width:240px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  table.preview tr:last-child td{ border-bottom:none; }
+
+  /* ---------- Generic sections ---------- */
+  section{
+    padding:56px 0;
+    border-bottom:1px solid var(--line);
+  }
+  section.alt{
+    background:var(--paper-alt);
+  }
+  h2{
+    font-size:1.5rem;
+    margin:0 0 20px;
+    font-weight:700;
+    letter-spacing:-0.005em;
+  }
+  h3{
+    font-size:1.05rem;
+    margin:0 0 8px;
+    font-weight:600;
+  }
+  p{ margin:0 0 16px; color:var(--ink); }
+  section p{ color:var(--ink); }
+  .lede{ color:var(--slate); }
+
+  /* ---------- Why section ---------- */
+  .why p{ max-width:640px; }
+
+  /* ---------- How it works ---------- */
+  .steps{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:28px;
+  }
+  @media (max-width: 700px){
+    .steps{ grid-template-columns:1fr; }
+  }
+  .step-icon{
+    width:40px;
+    height:40px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border:1px solid var(--accent);
+    border-radius:var(--radius);
+    background:var(--accent-soft);
+    color:var(--accent-ink);
+    margin-bottom:14px;
+  }
+  .step-icon svg{
+    width:20px;
+    height:20px;
+  }
+  .step .num{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.8rem;
+    color:var(--accent);
+    font-weight:600;
+    margin-bottom:10px;
+    display:block;
+  }
+  .step h3{ margin-bottom:8px; }
+  .step p{ color:var(--slate); font-size:0.94rem; margin:0; }
+
+  /* ---------- Feature list ---------- */
+  .feature-list{
+    display:flex;
+    flex-direction:column;
+  }
+  .feature{
+    display:grid;
+    grid-template-columns:220px 1fr;
+    gap:24px;
+    padding:22px 0;
+    border-top:1px solid var(--line);
+  }
+  .feature:first-child{ border-top:none; }
+  @media (max-width:700px){
+    .feature{ grid-template-columns:1fr; gap:6px; }
+  }
+  .feature h3{ margin:0; font-size:0.98rem; }
+  .feature p{ margin:0; color:var(--slate); font-size:0.94rem; }
+
+  /* ---------- Works with ---------- */
+  .source-list{
+    border-top:1px solid var(--line);
+    margin-bottom:16px;
+  }
+  .source-row{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:16px;
+    padding:14px 0;
+    border-bottom:1px solid var(--line);
+  }
+  .source-name{ font-size:0.98rem; font-weight:600; }
+  .source-note{ font-size:0.85rem; color:var(--slate); font-weight:400; margin-left:8px; }
+  .source-tag{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.78rem;
+    color:var(--slate);
+    background:var(--mono-bg);
+    border:1px solid var(--line-strong);
+    border-radius:var(--radius);
+    padding:2px 7px;
+    white-space:nowrap;
+    flex-shrink:0;
+  }
+  .note-box{
+    font-size:0.9rem;
+    color:var(--slate);
+    border-left:2px solid var(--line-strong);
+    padding-left:14px;
+  }
+
+  /* ---------- FAQ ---------- */
+  .faq-group{ margin-bottom:36px; }
+  .faq-group:last-child{ margin-bottom:0; }
+  .faq-group-title{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.07em;
+    color:var(--slate);
+    margin-bottom:6px;
+  }
+  details.faq-item{
+    border-bottom:1px solid var(--line);
+    padding:16px 0;
+  }
+  details.faq-item summary{
+    cursor:pointer;
+    list-style:none;
+    font-weight:600;
+    font-size:0.98rem;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:16px;
+  }
+  details.faq-item summary::-webkit-details-marker{ display:none; }
+  details.faq-item summary .plus{
+    font-family:'IBM Plex Mono', monospace;
+    color:var(--slate-light);
+    flex-shrink:0;
+    font-weight:400;
+    font-size:1.1rem;
+  }
+  details.faq-item[open] summary .plus::before{ content:"–"; }
+  details.faq-item summary .plus::before{ content:"+"; }
+  details.faq-item .faq-a{
+    margin-top:10px;
+    color:var(--slate);
+    font-size:0.94rem;
+    max-width:640px;
+  }
+  details.faq-item .faq-a a{ color:var(--accent); }
+
+  /* ---------- About ---------- */
+  .about-row{
+    display:flex;
+    gap:20px;
+    align-items:flex-start;
+  }
+  .about-avatar{
+    width:52px;height:52px;
+    border-radius:50%;
+    background:var(--accent-soft);
+    color:var(--accent-ink);
+    display:flex;align-items:center;justify-content:center;
+    font-weight:700;
+    font-family:'IBM Plex Mono', monospace;
+    flex-shrink:0;
+  }
+  .about-row p{ color:var(--slate); }
+
+  /* ---------- Footer ---------- */
+  footer{
+    padding:36px 0 40px;
+  }
+  .footer-links{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px 22px;
+    margin-bottom:18px;
+    font-size:0.88rem;
+  }
+  .footer-links a{ color:var(--slate); text-decoration:none; }
+  .footer-links a:hover{ color:var(--ink); }
+  .fine-print{
+    font-size:0.8rem;
+    color:var(--slate-light);
+  }
+  .fine-print a{ color:var(--slate-light); text-decoration:underline; }
+
+  .visually-hidden{
+    position:absolute;
+    width:1px;height:1px;
+    overflow:hidden;
+    clip:rect(0,0,0,0);
+    white-space:nowrap;
+  }
+
+  @media (max-width:640px){
+    h1{ font-size:1.8rem; }
+    .hero{ padding:36px 0 32px; }
+    section{ padding:40px 0; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site">
+  <div class="nav-row">
+    <a href="/" class="brand">
+      <span class="filebadge"><span class="chip">.ics</span><span class="arrow">&rarr;</span><span class="chip to">.csv</span></span>
+    </a>
+    <nav class="primary">
+      <a href="/csv-to-ics">CSV to ICS</a>
+      <a href="#how-it-works">How it works</a>
+      <a href="#faq">FAQ</a>
+      <a href="#about">About</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <!-- ================= HERO / CONVERTER ================= -->
+  <section class="hero">
+    <div class="wrap">
+      <div class="eyebrow">ICS to CSV Converter</div>
+      <h1>Convert an ICS calendar file to CSV in seconds</h1>
+      <p class="sub">Drop in a calendar file and get back a spreadsheet you can actually use. Choose your columns, delimiter, and date format before you download.</p>
+
+      <div class="panel" id="panel">
+        <div class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="Upload .ics file">
+          <svg class="dz-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+            <path d="M12 3v12m0-12l-4 4m4-4l4 4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>
+          </svg>
+          <div class="dz-main">Drag your .ics file here, or <span class="browse">click to choose one</span></div>
+          <div class="dz-sub">Works with more than one file at a time. Nothing you upload leaves your browser.</div>
+          <input type="file" id="fileInput" accept=".ics,.ical,.ifb,.icalendar,text/calendar" multiple>
+        </div>
+
+        <div class="filelist" id="filelist"></div>
+
+        <div class="options" id="options">
+
+          <div class="opt-group">
+            <div class="opt-label">Output format</div>
+            <div class="radio-row">
+              <label><input type="radio" name="schema" value="standard" checked> Standard columns</label>
+              <label><input type="radio" name="schema" value="google"> Google Calendar&ndash;compatible layout</label>
+            </div>
+          </div>
+
+          <div class="opt-group" id="multiFileGroup" style="display:none;">
+            <div class="opt-label">Multiple files</div>
+            <div class="radio-row">
+              <label><input type="radio" name="merge" value="combine" checked> Combine into one CSV</label>
+              <label><input type="radio" name="merge" value="separate"> Keep as separate files</label>
+            </div>
+          </div>
+
+          <div class="opt-group">
+            <div class="opt-label">Recurring events</div>
+            <div class="radio-row">
+              <label><input type="radio" name="recur" value="expand" checked> Expand into one row per occurrence</label>
+              <label><input type="radio" name="recur" value="first"> Only the first occurrence</label>
+            </div>
+          </div>
+
+          <div class="opt-group">
+            <div class="opt-label">Cancelled events</div>
+            <label class="check-row"><input type="checkbox" id="includeCancelledCheck" checked> Include events marked as cancelled</label>
+          </div>
+
+          <div class="opt-group">
+            <div class="opt-label">Date format</div>
+            <div class="radio-row">
+              <label><input type="radio" name="dateformat" value="iso" checked> YYYY-MM-DD <span class="opt-hint" style="margin:0;">(ISO)</span></label>
+              <label><input type="radio" name="dateformat" value="us"> MM/DD/YYYY <span class="opt-hint" style="margin:0;">(US)</span></label>
+              <label><input type="radio" name="dateformat" value="eu"> DD/MM/YYYY <span class="opt-hint" style="margin:0;">(EU)</span></label>
+            </div>
+          </div>
+
+          <div class="opt-group">
+            <div class="opt-label">Times</div>
+            <div class="radio-row">
+              <label><input type="radio" name="tzmode" value="local" checked> Your local timezone</label>
+              <label><input type="radio" name="tzmode" value="utc"> UTC</label>
+            </div>
+            <div class="opt-hint">All-day events keep their date as written, regardless of this setting.</div>
+          </div>
+
+          <div class="opt-group">
+            <div class="opt-label">Delimiter</div>
+            <div class="radio-row">
+              <label><input type="radio" name="delimiter" value="," checked> Comma</label>
+              <label><input type="radio" name="delimiter" value=";"> Semicolon</label>
+              <label><input type="radio" name="delimiter" value="&#9;"> Tab</label>
+            </div>
+          </div>
+
+          <div class="opt-group">
+            <div class="opt-label">File options</div>
+            <label class="check-row" style="margin-bottom:8px;"><input type="checkbox" id="headerRowCheck" checked> Include a header row with column names</label>
+            <label class="check-row"><input type="checkbox" id="bomCheck"> Add a BOM for Excel (fixes accented characters showing as garbled text)</label>
+          </div>
+
+          <div class="opt-group">
+            <div class="opt-label">Columns: choose what's included and in what order</div>
+            <div class="cols" id="colsList"></div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn" id="convertBtn" disabled>Convert to CSV</button>
+          <button class="btn secondary" id="downloadBtn" style="display:none;">Download CSV</button>
+          <span class="microcopy">Free to use, no account needed, and no limit on file size or count.</span>
+          <span class="status-line" id="statusLine" role="status" aria-live="polite"></span>
+        </div>
+
+        <div class="preview-wrap" id="previewWrap">
+          <div class="preview-head">
+            <h3>Preview</h3>
+            <span class="preview-count" id="previewCount"></span>
+          </div>
+          <div class="table-scroll">
+            <table class="preview" id="previewTable"></table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= WHY THIS EXISTS ================= -->
+  <section class="why">
+    <div class="wrap">
+      <h2>Why this exists</h2>
+      <p>I built this after spending twenty minutes trying to get a client's Google Calendar export to open cleanly in Excel for a billing report. The file opened fine in a text editor. It was a mess in a spreadsheet. Every recurring meeting showed up once instead of every week it actually happened, and the timestamps were in whatever timezone the original organizer had set, not mine.</p>
+      <p>That's the actual problem with ICS files. They're built to describe events to a calendar app, not to sit in a spreadsheet column. A converter that just splits on commas and calls it done will get simple one-off events right and quietly mangle everything else: recurring meetings, all-day events, events with attendees, events that were rescheduled once and now carry an exception date.</p>
+      <p>This ICS to CSV Converter tool is built to handle those cases properly, because a CSV with wrong dates in it isn't useful. It's worse than no CSV at all.</p>
+    </div>
+  </section>
+
+  <!-- ================= HOW IT WORKS ================= -->
+  <section class="alt" id="how-it-works">
+    <div class="wrap">
+      <h2>How it works</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 3v12m0-12l-4 4m4-4l4 4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>
+            </svg>
+          </div>
+          <span class="num">01</span>
+          <h3>Add your file</h3>
+          <p>Drag it in, or click to browse. You can add several .ics files at once if you're combining calendars from different apps or accounts.</p>
+        </div>
+        <div class="step">
+          <div class="step-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4.5" width="18" height="15" rx="1.5"/>
+              <line x1="3" y1="9.5" x2="21" y2="9.5"/>
+              <line x1="9" y1="9.5" x2="9" y2="19.5"/>
+            </svg>
+          </div>
+          <span class="num">02</span>
+          <h3>Check the preview</h3>
+          <p>See your events laid out in a table before you download anything. Fix column order or date format if you need to.</p>
+        </div>
+        <div class="step">
+          <div class="step-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 3v10m0 0l-4-4m4 4l4-4"/>
+              <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>
+            </svg>
+          </div>
+          <span class="num">03</span>
+          <h3>Download your CSV</h3>
+          <p>Opens straight in Excel, Google Sheets, or Numbers. No extra formatting step.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FEATURES / DATA HANDLING ================= -->
+  <section>
+    <div class="wrap">
+      <h2>How your calendar data is actually handled</h2>
+      <div class="feature-list">
+        <div class="feature">
+          <h3>Recurring events are expanded into individual rows</h3>
+          <p>A weekly meeting with fifty occurrences shows up as fifty rows, matching what actually happened on the calendar. If an occurrence was cancelled or moved, the exception in the original file is read and reflected in the output instead of being ignored.</p>
+        </div>
+        <div class="feature">
+          <h3>Event times are converted to the correct timezone</h3>
+          <p>ICS files typically store times in UTC or in whatever timezone the event's organizer was in. Each event is converted to reflect the correct local time rather than leaving the raw offset in place.</p>
+        </div>
+        <div class="feature">
+          <h3>Column selection</h3>
+          <p>Choose which fields end up in the CSV, including title, start time, end time, location, description, organizer, and attendees, and set the order to match what your spreadsheet or reporting tool expects.</p>
+        </div>
+        <div class="feature">
+          <h3>Delimiter and date format, your choice</h3>
+          <p>Export with a comma, semicolon, or tab delimiter, and set dates as ISO, US, or EU format. Useful if the file is headed into a system that expects a specific layout instead of whatever a default export gives you.</p>
+        </div>
+        <div class="feature">
+          <h3>A Google Calendar&ndash;compatible layout</h3>
+          <p>If the CSV needs to be reimported into Google Calendar later, or fed into a tool that expects Google's specific column layout, that format is available as an export option.</p>
+        </div>
+        <div class="feature">
+          <h3>No file count or size limit</h3>
+          <p>One file or several dozen, small calendar or one with a few thousand events, the process is the same.</p>
+        </div>
+        <div class="feature">
+          <h3>Processing happens locally</h3>
+          <p>The file is read and converted in your browser using JavaScript. It is never uploaded to a server, which means there's nothing to store and nothing to lose track of afterward.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= WORKS WITH ================= -->
+  <section class="alt">
+    <div class="wrap">
+      <h2>Works with calendars from</h2>
+      <div class="source-list">
+        <div class="source-row">
+          <span class="source-name">Google Calendar</span>
+          <span class="source-tag">.ics export</span>
+        </div>
+        <div class="source-row">
+          <span class="source-name">Outlook <span class="source-note">and Microsoft 365</span></span>
+          <span class="source-tag">.ics export</span>
+        </div>
+        <div class="source-row">
+          <span class="source-name">Apple Calendar <span class="source-note">and iCloud</span></span>
+          <span class="source-tag">.ics export</span>
+        </div>
+        <div class="source-row">
+          <span class="source-name">Thunderbird</span>
+          <span class="source-tag">.ics export</span>
+        </div>
+        <div class="source-row">
+          <span class="source-name">Zoom <span class="source-note">meeting invites</span></span>
+          <span class="source-tag">.ics attachment</span>
+        </div>
+        <div class="source-row">
+          <span class="source-name">Any other calendar app</span>
+          <span class="source-tag">RFC 5545</span>
+        </div>
+      </div>
+      <p class="note-box">Not sure how to export your calendar as an .ics file in the first place? See the export steps for Google Calendar, Outlook, and Apple Calendar in the FAQ below.</p>
+    </div>
+  </section>
+
+  <!-- ================= FAQ ================= -->
+  <section id="faq">
+    <div class="wrap">
+      <h2>FAQ</h2>
+
+      <div class="faq-group">
+        <div class="faq-group-title">Converting the file</div>
+
+        <details class="faq-item">
+          <summary>How do I convert an ICS file to CSV?<span class="plus"></span></summary>
+          <div class="faq-a">Upload the .ics file above. It's read in your browser, laid out as a table so you can check it, and you download the result as a CSV. No conversion happens on a server, so there's no wait for an upload or a processing queue.</div>
+        </details>
+
+        <details class="faq-item">
+          <summary>What information from my calendar ends up in the CSV?<span class="plus"></span></summary>
+          <div class="faq-a">By default: event title, start date and time, end date and time, location, description, organizer, and attendees. You can drop any of these or reorder them before downloading, depending on what your spreadsheet or reporting tool needs.</div>
+        </details>
+
+        <details class="faq-item">
+          <summary>Can I convert more than one ICS file at once?<span class="plus"></span></summary>
+          <div class="faq-a">Yes. Add several files in one go and either combine them into a single CSV or keep them as separate files, depending on what you're trying to do with the output.</div>
+        </details>
+
+        <details class="faq-item">
+          <summary>Is there a limit on file size or number of events?<span class="plus"></span></summary>
+          <div class="faq-a">No. A calendar with a handful of events and one with several thousand go through the same process.</div>
+        </details>
+
+        <details class="faq-item">
+          <summary>Does this handle recurring events correctly?<span class="plus"></span></summary>
+          <div class="faq-a">Yes. Weekly, monthly, and custom recurrence rules are expanded into individual rows rather than a single summary row, and any exceptions or cancelled occurrences already recorded in the file are carried over correctly.</div>
+        </details>
+
+        <details class="faq-item">
+          <summary>Will the event times be correct, or do I need to fix the timezone myself?<span class="plus"></span></summary>
+          <div class="faq-a">Times are converted to reflect the correct local time for each event. You shouldn't need to manually offset anything afterward.</div>
+        </details>
+
+        <details class="faq-item">
+          <summary>What happens if my ICS file has missing fields or looks broken?<span class="plus"></span></summary>
+          <div class="faq-a">Events with missing optional fields, like no location or no description, just show up with those columns blank. If a file is badly malformed and can't be read at all, you'll get a clear message saying so rather than a CSV full of garbled text.</div>
+        </details>
+      </div>
+
+      <div class="faq-group">
+        <div class="faq-group-title">Specific calendars and apps</div>
+
+        <details class="faq-item">
+          <summary>How do I export my Google Calendar as an ICS file before converting it?<span class="plus"></span></summary>
+          <div class="faq-a">In Google Calendar, go to Settings, then Import &amp; Export, then Export, which downloads a zip file containing your calendars as .ics files. Unzip it and upload the file you need here.</div>
+        </details>
+
+        <details class="faq-item">
+          <summary>How do I convert an Outlook or Microsoft 365 calendar to CSV?<span class="plus"></span></summary>
+          <div class="faq-a">Export the calendar from Outlook as an iCalendar (.ics) file first, using File, then Save Calendar, then choosing iCalendar Format. Upload that file here rather than trying to export CSV directly from Outlook, which often drops fields like attendees or descriptions.</div>
+        </details>
+
+        <details class="faq-item">
+          <summary>How do I convert an Apple Calendar or iCloud calendar to CSV?<span class="plus"></span></summary>
+          <div class="faq-a">Open the calendar in the Calendar app on a Mac, select the calendar you want, and use File, then Export, then Export. That saves an .ics file you can upload here. There isn't a way to export directly from iCloud's web interface, so this app-based export is the reliable route.</div>
+        </details>
+
+        <details class="faq-item">
+          <summary>Does this work with calendars exported from Thunderbird?<span class="plus"></span></summary>
+          <div class="faq-a">Yes. Thunderbird's calendar export produces a standard .ics file, and it's handled the same way as any other source.</div>
+        </details>
+
+        <details class="faq-item">
+          <summary>Can I convert a meeting invite from Zoom, Calendly, or similar tools?<span class="plus"></span></summary>
+          <div class="faq-a">Yes, as long as it's a standard .ics attachment, which is how most scheduling and meeting tools send calendar invites.</div>
+        </details>
+      </div>
+
+      <div class="faq-group">
+        <div class="faq-group-title">Going the other direction</div>
+
+        <details class="faq-item">
+          <summary>Can I convert a CSV file into an ICS calendar file?<span class="plus"></span></summary>
+          <div class="faq-a">Yes, using the <a href="/csv-to-ics">CSV to ICS converter</a>. You upload a CSV, map your columns to event fields like title and start time, and download a valid .ics file you can import into any calendar app.</div>
+        </details>
+
+        <details class="faq-item">
+          <summary>Can I import the converted CSV straight into Google Sheets or Excel?<span class="plus"></span></summary>
+          <div class="faq-a">Yes. The output is a standard CSV, so it opens directly in Excel, Google Sheets, or Numbers without any extra import steps.</div>
+        </details>
+
+        <details class="faq-item">
+          <summary>I need to bulk-import events into Google Calendar from a spreadsheet. Is that possible?<span class="plus"></span></summary>
+          <div class="faq-a">That's the reverse process. Use the <a href="/csv-to-ics">CSV to ICS converter</a> to turn your spreadsheet into an .ics file, then import that file through Google Calendar's Settings, then Import &amp; Export.</div>
+        </details>
+      </div>
+
+      <div class="faq-group">
+        <div class="faq-group-title">Privacy and technical details</div>
+
+        <details class="faq-item">
+          <summary>Is my calendar data uploaded to a server anywhere?<span class="plus"></span></summary>
+          <div class="faq-a">No. The file is read and converted locally in your browser using JavaScript. It's never sent anywhere, which also means there's nothing stored after you close the tab.</div>
+        </details>
+
+        <details class="faq-item">
+          <summary>Do you keep a copy of the files people convert?<span class="plus"></span></summary>
+          <div class="faq-a">No, and there's no mechanism to, since the conversion never touches a server in the first place.</div>
+        </details>
+
+        <details class="faq-item">
+          <summary>What's the actual difference between an ICS file and a CSV file?<span class="plus"></span></summary>
+          <div class="faq-a">An ICS file (also called iCalendar) is a structured text format built specifically to describe calendar events, including recurrence rules and timezones, so different calendar apps can exchange them. A CSV is a plain, general-purpose table format that any spreadsheet or database can read, but it has no built-in concept of a recurring event or a timezone, which is why a direct conversion needs to interpret those details rather than just copy them over.</div>
+        </details>
+
+        <details class="faq-item">
+          <summary>Does this work on a phone, or only on a desktop browser?<span class="plus"></span></summary>
+          <div class="faq-a">It runs in any modern browser, including on a phone, though checking and rearranging a large table of events is easier on a bigger screen.</div>
+        </details>
+
+        <details class="faq-item">
+          <summary>Is there a way to do this from the command line, or a library I can use in code instead of the browser tool?<span class="plus"></span></summary>
+          <div class="faq-a">If you're working with ICS files programmatically, most languages have a maintained library for reading them, for example <code>icalendar</code> in Python. This tool is aimed at people who want a result without writing code, but the underlying parsing logic follows the same iCalendar standard (RFC 5545) either way.</div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= ABOUT ================= -->
+  <section class="alt" id="about">
+    <div class="wrap">
+      <h2>About and trust</h2>
+      <div class="about-row">
+        <div class="about-avatar" aria-hidden="true">IC</div>
+        <div>
+          <p>Built and maintained by the site owner. Issues get fixed as they're reported, and a running <a href="/changelog">changelog</a> tracks what's changed and why, including problems other users found first.</p>
+          <p>This tool doesn't run ads, doesn't sell data (there isn't any to sell, since nothing is uploaded), and doesn't have a paid tier. If it saved you a manual export or an afternoon of copy-pasting into a spreadsheet, a small <a href="#">Buy Me a Coffee</a> tip helps cover hosting. Entirely optional.</p>
+          <p>Questions, bug reports, or a calendar file that didn't convert the way you expected? <a href="/contact">Contact &rarr;</a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-links">
+      <a href="/privacy">Privacy policy</a>
+      <a href="/changelog">Changelog</a>
+      <a href="/contact">Contact</a>
+      <a href="/csv-to-ics">CSV to ICS converter</a>
+      <a href="/ics-validator">ICS file validator</a>
+    </div>
+    <p class="fine-print">This site doesn't use tracking cookies or store uploaded files. See the <a href="/privacy">privacy policy</a> for specifics.</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ============================================================
+     ICS PARSING
+     ============================================================ */
+
+  function unfoldLines(text){
+    text = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+    var raw = text.split("\n");
+    var lines = [];
+    for (var i = 0; i < raw.length; i++){
+      var line = raw[i];
+      if ((line[0] === " " || line[0] === "\t") && lines.length){
+        lines[lines.length - 1] += line.slice(1);
+      } else {
+        lines.push(line);
+      }
+    }
+    return lines;
+  }
+
+  function unescapeText(v){
+    if (v == null) return "";
+    return v
+      .replace(/\\n/gi, "\n")
+      .replace(/\\,/g, ",")
+      .replace(/\\;/g, ";")
+      .replace(/\\\\/g, "\\");
+  }
+
+  function parseLine(line){
+    var colonIdx = -1, inQuotes = false;
+    for (var i = 0; i < line.length; i++){
+      var ch = line[i];
+      if (ch === '"') inQuotes = !inQuotes;
+      if (ch === ":" && !inQuotes){ colonIdx = i; break; }
+    }
+    if (colonIdx === -1) return null;
+    var head = line.slice(0, colonIdx);
+    var value = line.slice(colonIdx + 1);
+    var parts = head.split(";");
+    var name = parts[0].toUpperCase();
+    var params = {};
+    for (var j = 1; j < parts.length; j++){
+      var kv = parts[j].split("=");
+      if (kv.length >= 2){
+        params[kv[0].toUpperCase()] = kv.slice(1).join("=").replace(/^"|"$/g, "");
+      }
+    }
+    return { name: name, params: params, value: value };
+  }
+
+  function getOffsetMs(ts, tzid){
+    try {
+      var dtf = new Intl.DateTimeFormat("en-US", {
+        timeZone: tzid, hour12: false,
+        year: "numeric", month: "2-digit", day: "2-digit",
+        hour: "2-digit", minute: "2-digit", second: "2-digit"
+      });
+      var parts = dtf.formatToParts(new Date(ts));
+      var map = {};
+      parts.forEach(function(p){ map[p.type] = p.value; });
+      var hour = map.hour === "24" ? 0 : parseInt(map.hour, 10);
+      var asUTC = Date.UTC(
+        parseInt(map.year,10), parseInt(map.month,10) - 1, parseInt(map.day,10),
+        hour, parseInt(map.minute,10), parseInt(map.second,10)
+      );
+      return asUTC - ts;
+    } catch(e){ return null; }
+  }
+
+  function wallTimeToUTC(y, mo, d, h, mi, s, tzid){
+    var offset = getOffsetMs(Date.UTC(y, mo, d, h, mi, s), tzid);
+    if (offset === null) return null;
+    var ts = Date.UTC(y, mo, d, h, mi, s) - offset;
+    var offset2 = getOffsetMs(ts, tzid);
+    if (offset2 !== null) ts = Date.UTC(y, mo, d, h, mi, s) - offset2;
+    return ts;
+  }
+
+  function parseICSDateValue(value, params){
+    if (!value) return null;
+    value = value.trim();
+    var isDateOnly = (params && params.VALUE === "DATE") || /^\d{8}$/.test(value);
+    if (isDateOnly){
+      var y0 = parseInt(value.slice(0,4),10),
+          m0 = parseInt(value.slice(4,6),10) - 1,
+          d0 = parseInt(value.slice(6,8),10);
+      return { allDay: true, ms: Date.UTC(y0, m0, d0, 0, 0, 0), floating: false };
+    }
+    var m = value.match(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})(Z)?$/);
+    if (!m) return null;
+    var y = +m[1], mo = +m[2] - 1, d = +m[3], h = +m[4], mi = +m[5], s = +m[6], z = m[7];
+    if (z === "Z"){
+      return { allDay: false, ms: Date.UTC(y, mo, d, h, mi, s), floating: false };
+    }
+    if (params && params.TZID){
+      var ms = wallTimeToUTC(y, mo, d, h, mi, s, params.TZID);
+      if (ms !== null) return { allDay: false, ms: ms, floating: false };
+    }
+    return { allDay: false, ms: Date.UTC(y, mo, d, h, mi, s), floating: true };
+  }
+
+  function padNum(n){ return (n < 10 ? "0" : "") + n; }
+
+  function formatDatePart(y, mo, da, dateFormat){
+    if (dateFormat === "us") return padNum(mo) + "/" + padNum(da) + "/" + y;
+    if (dateFormat === "eu") return padNum(da) + "/" + padNum(mo) + "/" + y;
+    return y + "-" + padNum(mo) + "-" + padNum(da);
+  }
+
+  /* All-day events are anchored to UTC midnight when parsed, so their
+     date is read back out with UTC getters — that keeps the date fixed
+     no matter what timezone option is selected. Timed events use local
+     or UTC getters depending on the "Times" option. */
+  function getYMDHM(ms, tzMode){
+    var d = new Date(ms);
+    if (tzMode === "utc"){
+      return { y: d.getUTCFullYear(), mo: d.getUTCMonth()+1, da: d.getUTCDate(), h: d.getUTCHours(), mi: d.getUTCMinutes() };
+    }
+    return { y: d.getFullYear(), mo: d.getMonth()+1, da: d.getDate(), h: d.getHours(), mi: d.getMinutes() };
+  }
+
+  function fmtDate(ms, allDay, opts){
+    if (ms == null || isNaN(ms)) return "";
+    opts = opts || {};
+    var dateFormat = opts.dateFormat || "iso", tzMode = opts.tzMode || "local";
+    if (allDay){
+      var d = new Date(ms);
+      return formatDatePart(d.getUTCFullYear(), d.getUTCMonth()+1, d.getUTCDate(), dateFormat);
+    }
+    var t = getYMDHM(ms, tzMode);
+    return formatDatePart(t.y, t.mo, t.da, dateFormat) + " " + padNum(t.h) + ":" + padNum(t.mi);
+  }
+  function fmtDatePart(ms, allDay, opts){
+    opts = opts || {};
+    var dateFormat = opts.dateFormat || "iso", tzMode = opts.tzMode || "local";
+    if (allDay){
+      var d = new Date(ms);
+      return formatDatePart(d.getUTCFullYear(), d.getUTCMonth()+1, d.getUTCDate(), dateFormat);
+    }
+    var t = getYMDHM(ms, tzMode);
+    return formatDatePart(t.y, t.mo, t.da, dateFormat);
+  }
+  function fmtTimePart(ms, allDay, opts){
+    if (allDay) return "";
+    opts = opts || {};
+    var t = getYMDHM(ms, (opts.tzMode || "local"));
+    return padNum(t.h) + ":" + padNum(t.mi);
+  }
+
+  function parseRRule(value){
+    var out = { FREQ: null, INTERVAL: 1, COUNT: null, UNTIL: null, BYDAY: null };
+    value.split(";").forEach(function(pair){
+      var kv = pair.split("=");
+      var k = kv[0].toUpperCase(), v = kv[1];
+      if (!v) return;
+      if (k === "FREQ") out.FREQ = v.toUpperCase();
+      else if (k === "INTERVAL") out.INTERVAL = parseInt(v,10) || 1;
+      else if (k === "COUNT") out.COUNT = parseInt(v,10);
+      else if (k === "UNTIL"){
+        var u = parseICSDateValue(v, {});
+        out.UNTIL = u ? u.ms : null;
+      }
+      else if (k === "BYDAY") out.BYDAY = v.split(",");
+    });
+    return out;
+  }
+
+  var DAY_CODES = { SU:0, MO:1, TU:2, WE:3, TH:4, FR:5, SA:6 };
+
+  function addDays(ms, n){ return ms + n * 86400000; }
+  function addMonthsUTC(ms, n){
+    var d = new Date(ms);
+    var y = d.getUTCFullYear(), mo = d.getUTCMonth(), day = d.getUTCDate();
+    var target = new Date(Date.UTC(y, mo + n, 1, d.getUTCHours(), d.getUTCMinutes(), d.getUTCSeconds()));
+    var daysInMonth = new Date(Date.UTC(target.getUTCFullYear(), target.getUTCMonth()+1, 0)).getUTCDate();
+    target.setUTCDate(Math.min(day, daysInMonth));
+    return target.getTime();
+  }
+  function addYearsUTC(ms, n){ return addMonthsUTC(ms, n * 12); }
+
+  var FREQ_CAPS = { DAILY: 366, WEEKLY: 260, MONTHLY: 120, YEARLY: 50 };
+  var MAX_TOTAL_OCCURRENCES = 4000;
+
+  function expandRecurrence(startMs, durationMs, rrule, exdates, allDay){
+    var occurrences = [];
+    if (!rrule || !rrule.FREQ){ occurrences.push(startMs); return occurrences; }
+    var cap = FREQ_CAPS[rrule.FREQ] || 100;
+    if (rrule.COUNT) cap = Math.min(rrule.COUNT, cap * 4, MAX_TOTAL_OCCURRENCES);
+
+    function isExcluded(ms){
+      for (var i=0;i<exdates.length;i++){
+        if (Math.abs(exdates[i] - ms) < 60000) return true;
+      }
+      return false;
+    }
+
+    if (rrule.FREQ === "WEEKLY" && rrule.BYDAY && rrule.BYDAY.length){
+      var startDay = new Date(startMs);
+      var startOfStartDayMs = Date.UTC(startDay.getUTCFullYear(), startDay.getUTCMonth(), startDay.getUTCDate());
+      var timeOfDayMs = startMs - startOfStartDayMs;
+      var startWeekStartMs = startOfStartDayMs - startDay.getUTCDay() * 86400000;
+      var codesSorted = rrule.BYDAY.slice().sort(function(a,b){ return DAY_CODES[a]-DAY_CODES[b]; });
+      var weekIdx = 0, produced = 0, guard = 0, stop = false;
+      while (produced < cap && guard < cap * 3 + 40 && !stop){
+        guard++;
+        var weekBase = startWeekStartMs + weekIdx * 7 * rrule.INTERVAL * 86400000;
+        for (var c=0;c<codesSorted.length;c++){
+          var offset = DAY_CODES[codesSorted[c]];
+          if (offset === undefined) continue;
+          var occMs = weekBase + offset * 86400000 + timeOfDayMs;
+          if (occMs < startMs - 1000) continue;
+          if (rrule.UNTIL && occMs > rrule.UNTIL) { stop = true; break; }
+          if (!isExcluded(occMs)) { occurrences.push(occMs); produced++; }
+          if (produced >= cap) break;
+        }
+        weekIdx++;
+      }
+      occurrences.sort(function(a,b){ return a-b; });
+      return occurrences;
+    }
+
+    var cur = startMs, count = 0;
+    while (count < cap){
+      if (rrule.UNTIL && cur > rrule.UNTIL) break;
+      if (!isExcluded(cur)) { occurrences.push(cur); }
+      count++;
+      if (rrule.FREQ === "DAILY") cur = addDays(cur, rrule.INTERVAL);
+      else if (rrule.FREQ === "WEEKLY") cur = addDays(cur, 7 * rrule.INTERVAL);
+      else if (rrule.FREQ === "MONTHLY") cur = addMonthsUTC(cur, rrule.INTERVAL);
+      else if (rrule.FREQ === "YEARLY") cur = addYearsUTC(cur, rrule.INTERVAL);
+      else break;
+    }
+    return occurrences;
+  }
+
+  function parseICS(text, fileName){
+    var lines = unfoldLines(text);
+    var hasCalendar = lines.some(function(l){ return l.toUpperCase().indexOf("BEGIN:VCALENDAR") === 0; });
+    var rawEvents = [];
+    var cur = null;
+    for (var i = 0; i < lines.length; i++){
+      var line = lines[i];
+      if (!line) continue;
+      var upper = line.toUpperCase();
+      if (upper.indexOf("BEGIN:VEVENT") === 0){
+        cur = { props: {}, attendees: [], exdates: [] };
+        continue;
+      }
+      if (upper.indexOf("END:VEVENT") === 0){
+        if (cur) rawEvents.push(cur);
+        cur = null;
+        continue;
+      }
+      if (!cur) continue;
+      var p = parseLine(line);
+      if (!p) continue;
+      if (p.name === "ATTENDEE"){
+        var name = p.params.CN || p.value.replace(/^mailto:/i, "");
+        cur.attendees.push(name);
+      } else if (p.name === "EXDATE"){
+        p.value.split(",").forEach(function(v){
+          var pd = parseICSDateValue(v, p.params);
+          if (pd) cur.exdates.push(pd.ms);
+        });
+      } else {
+        cur.props[p.name] = { value: p.value, params: p.params };
+      }
+    }
+
+    if (!hasCalendar && rawEvents.length === 0){
+      return { error: "This doesn't look like a valid .ics file. No calendar data was found.", events: [] };
+    }
+    if (rawEvents.length === 0){
+      return { error: "No events were found in this file.", events: [] };
+    }
+
+    var events = [];
+    var overridesByUidDate = {};
+    rawEvents.forEach(function(re){
+      if (re.props["RECURRENCE-ID"]){
+        var rid = parseICSDateValue(re.props["RECURRENCE-ID"].value, re.props["RECURRENCE-ID"].params);
+        var uid = re.props.UID ? re.props.UID.value : "";
+        if (rid) overridesByUidDate[uid + "|" + rid.ms] = re;
+      }
+    });
+
+    rawEvents.forEach(function(re){
+      if (re.props["RECURRENCE-ID"]) return;
+      var dtstartProp = re.props.DTSTART;
+      if (!dtstartProp) return;
+      var dtstart = parseICSDateValue(dtstartProp.value, dtstartProp.params);
+      if (!dtstart) return;
+      var dtendProp = re.props.DTEND;
+      var dtend = dtendProp ? parseICSDateValue(dtendProp.value, dtendProp.params) : null;
+      var duration = dtend ? (dtend.ms - dtstart.ms) : (dtstart.allDay ? 86400000 : 0);
+
+      var summary = re.props.SUMMARY ? unescapeText(re.props.SUMMARY.value) : "";
+      var location = re.props.LOCATION ? unescapeText(re.props.LOCATION.value) : "";
+      var description = re.props.DESCRIPTION ? unescapeText(re.props.DESCRIPTION.value) : "";
+      var organizerRaw = re.props.ORGANIZER ? re.props.ORGANIZER.value.replace(/^mailto:/i,"") : "";
+      var organizer = re.props.ORGANIZER && re.props.ORGANIZER.params.CN ? re.props.ORGANIZER.params.CN : organizerRaw;
+      var uid = re.props.UID ? re.props.UID.value : "";
+      var baseStatus = re.props.STATUS ? re.props.STATUS.value.toUpperCase() : "";
+
+      var rrule = re.props.RRULE ? parseRRule(re.props.RRULE.value) : null;
+      var occurrences = expandRecurrence(dtstart.ms, duration, rrule, re.exdates, dtstart.allDay);
+
+      occurrences.forEach(function(occMs, occIdx){
+        var override = overridesByUidDate[uid + "|" + occMs];
+        var src = override || re;
+        var s = summary, loc = location, desc = description, org = organizer, att = re.attendees, status = baseStatus;
+        var startMs = occMs, endMs = occMs + duration, allDay = dtstart.allDay;
+        if (override){
+          var ovDtstart = override.props.DTSTART ? parseICSDateValue(override.props.DTSTART.value, override.props.DTSTART.params) : null;
+          var ovDtend = override.props.DTEND ? parseICSDateValue(override.props.DTEND.value, override.props.DTEND.params) : null;
+          if (ovDtstart) startMs = ovDtstart.ms;
+          if (ovDtend) endMs = ovDtend.ms; else endMs = startMs + duration;
+          s = override.props.SUMMARY ? unescapeText(override.props.SUMMARY.value) : s;
+          loc = override.props.LOCATION ? unescapeText(override.props.LOCATION.value) : loc;
+          desc = override.props.DESCRIPTION ? unescapeText(override.props.DESCRIPTION.value) : desc;
+          status = override.props.STATUS ? override.props.STATUS.value.toUpperCase() : status;
+        }
+        events.push({
+          title: s,
+          startMs: startMs,
+          endMs: endMs,
+          allDay: allDay,
+          location: loc,
+          description: desc,
+          organizer: org,
+          attendees: att.join("; "),
+          uid: uid,
+          status: status,
+          occIndex: occIdx,
+          sourceFile: fileName
+        });
+      });
+    });
+
+    events.sort(function(a,b){ return a.startMs - b.startMs; });
+    return { error: null, events: events };
+  }
+
+  /* ============================================================
+     COMPACT VALIDATOR
+     A quick, in-page sanity check — separate from and lighter than
+     the full ICS validator tool, for people who just want a fast
+     yes/no before (or instead of) converting.
+     ============================================================ */
+
+  function validateICS(text){
+    var lines = unfoldLines(text);
+    var hasBeginCal = false, hasEndCal = false, hasVersion = false, hasProdid = false;
+    var beginCount = 0, endCount = 0, missingDtstart = 0, missingUid = 0;
+    var cur = null;
+    for (var i = 0; i < lines.length; i++){
+      var upper = lines[i].toUpperCase();
+      if (upper.indexOf("BEGIN:VCALENDAR") === 0) hasBeginCal = true;
+      if (upper.indexOf("END:VCALENDAR") === 0) hasEndCal = true;
+      if (upper.indexOf("VERSION:") === 0) hasVersion = true;
+      if (upper.indexOf("PRODID:") === 0) hasProdid = true;
+      if (upper.indexOf("BEGIN:VEVENT") === 0){ beginCount++; cur = { dtstart:false, uid:false }; continue; }
+      if (upper.indexOf("END:VEVENT") === 0){
+        if (cur){ endCount++; if (!cur.dtstart) missingDtstart++; if (!cur.uid) missingUid++; }
+        cur = null;
+        continue;
+      }
+      if (cur){
+        if (upper.indexOf("DTSTART") === 0) cur.dtstart = true;
+        if (upper.indexOf("UID") === 0) cur.uid = true;
+      }
+    }
+
+    var checks = [
+      { label: "Has BEGIN:VCALENDAR and END:VCALENDAR", pass: hasBeginCal && hasEndCal },
+      { label: "Declares a VERSION", pass: hasVersion },
+      { label: "Declares a PRODID", pass: hasProdid },
+      { label: "Every BEGIN:VEVENT has a matching END:VEVENT (" + beginCount + " found)", pass: beginCount === endCount && beginCount > 0 },
+      { label: missingDtstart === 0 ? "Every event has a start date (DTSTART)" : (missingDtstart + " event(s) missing a start date (DTSTART)"), pass: missingDtstart === 0 },
+      { label: missingUid === 0 ? "Every event has a UID" : (missingUid + " event(s) missing a UID (allowed, but not ideal)"), pass: missingUid === 0 }
+    ];
+    var ok = checks.every(function(c){ return c.pass; });
+    return { ok: ok, checks: checks, eventCount: beginCount };
+  }
+
+  function escapeHtml(v){
+    return String(v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  }
+
+  function renderValidateReport(report){
+    var summary = report.ok
+      ? "This looks like a well-formed ICS file (" + report.eventCount + (report.eventCount === 1 ? " event)." : " events).")
+      : "A few things look off. The file may still convert, but some data could be missing.";
+    var summaryClass = report.ok ? "pass" : "fail";
+    var items = report.checks.map(function(c){
+      return '<div class="vcheck ' + (c.pass ? "pass" : "fail") + '">' + escapeHtml(c.label) + "</div>";
+    }).join("");
+    return '<div class="vsummary ' + summaryClass + '">' + escapeHtml(summary) + "</div>" + items +
+      '<a class="vfull" href="/ics-validator" target="_blank" rel="noopener">Open the full ICS validator for a detailed report &rarr;</a>';
+  }
+
+  /* ============================================================
+     UI STATE
+     ============================================================ */
+
+  var state = {
+    files: [],
+    events: [],
+    columns: []
+  };
+
+  var STANDARD_COLUMNS = [
+    { key: "title", label: "Title" },
+    { key: "start", label: "Start" },
+    { key: "end", label: "End" },
+    { key: "location", label: "Location" },
+    { key: "description", label: "Description" },
+    { key: "organizer", label: "Organizer" },
+    { key: "attendees", label: "Attendees" }
+  ];
+
+  var GOOGLE_COLUMNS = [
+    { key: "g_subject", label: "Subject" },
+    { key: "g_startdate", label: "Start Date" },
+    { key: "g_starttime", label: "Start Time" },
+    { key: "g_enddate", label: "End Date" },
+    { key: "g_endtime", label: "End Time" },
+    { key: "g_allday", label: "All Day Event" },
+    { key: "g_description", label: "Description" },
+    { key: "g_location", label: "Location" }
+  ];
+
+  function cloneCols(arr){
+    return arr.map(function(c){ return { key: c.key, label: c.label, included: true }; });
+  }
+
+  function currentSchema(){
+    var r = document.querySelector('input[name="schema"]:checked');
+    return r ? r.value : "standard";
+  }
+
+  function resetColumnsForSchema(){
+    state.columns = cloneCols(currentSchema() === "google" ? GOOGLE_COLUMNS : STANDARD_COLUMNS);
+    renderColumns();
+    renderPreview();
+  }
+
+  function renderColumns(){
+    var list = document.getElementById("colsList");
+    list.innerHTML = "";
+    state.columns.forEach(function(col, idx){
+      var row = document.createElement("div");
+      row.className = "col-row";
+
+      var label = document.createElement("label");
+      var cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.checked = col.included;
+      cb.addEventListener("change", function(){ col.included = cb.checked; renderPreview(); });
+      var span = document.createElement("span");
+      span.textContent = col.label;
+      var keySpan = document.createElement("span");
+      keySpan.className = "colkey";
+      keySpan.textContent = col.key.replace(/^g_/, "");
+      label.appendChild(cb);
+      label.appendChild(span);
+      label.appendChild(keySpan);
+
+      var moveWrap = document.createElement("div");
+      moveWrap.className = "col-move";
+      var up = document.createElement("button");
+      up.type = "button";
+      up.textContent = "\u25B2";
+      up.disabled = idx === 0;
+      up.addEventListener("click", function(){
+        var tmp = state.columns[idx-1];
+        state.columns[idx-1] = state.columns[idx];
+        state.columns[idx] = tmp;
+        renderColumns(); renderPreview();
+      });
+      var down = document.createElement("button");
+      down.type = "button";
+      down.textContent = "\u25BC";
+      down.disabled = idx === state.columns.length - 1;
+      down.addEventListener("click", function(){
+        var tmp = state.columns[idx+1];
+        state.columns[idx+1] = state.columns[idx];
+        state.columns[idx] = tmp;
+        renderColumns(); renderPreview();
+      });
+      moveWrap.appendChild(up);
+      moveWrap.appendChild(down);
+
+      row.appendChild(label);
+      row.appendChild(moveWrap);
+      list.appendChild(row);
+    });
+  }
+
+  function eventToRow(ev, colKey, opts){
+    switch(colKey){
+      case "title": return ev.title;
+      case "start": return fmtDate(ev.startMs, ev.allDay, opts);
+      case "end": return fmtDate(ev.endMs, ev.allDay, opts);
+      case "location": return ev.location;
+      case "description": return ev.description;
+      case "organizer": return ev.organizer;
+      case "attendees": return ev.attendees;
+      case "g_subject": return ev.title;
+      case "g_startdate": return fmtDatePart(ev.startMs, ev.allDay, opts);
+      case "g_starttime": return fmtTimePart(ev.startMs, ev.allDay, opts);
+      case "g_enddate": return fmtDatePart(ev.endMs, ev.allDay, opts);
+      case "g_endtime": return fmtTimePart(ev.endMs, ev.allDay, opts);
+      case "g_allday": return ev.allDay ? "True" : "False";
+      case "g_description": return ev.description;
+      case "g_location": return ev.location;
+      default: return "";
+    }
+  }
+
+  /* Reads the current value of every output option from the DOM.
+     Called fresh each time formatting or filtering happens, so any
+     change takes effect immediately without extra wiring. */
+  function getOutputOptions(){
+    var delimiterEl = document.querySelector('input[name="delimiter"]:checked');
+    var dateFormatEl = document.querySelector('input[name="dateformat"]:checked');
+    var tzEl = document.querySelector('input[name="tzmode"]:checked');
+    var recurEl = document.querySelector('input[name="recur"]:checked');
+    var headerEl = document.getElementById("headerRowCheck");
+    var cancelledEl = document.getElementById("includeCancelledCheck");
+    var bomEl = document.getElementById("bomCheck");
+    return {
+      delimiter: delimiterEl ? delimiterEl.value : ",",
+      dateFormat: dateFormatEl ? dateFormatEl.value : "iso",
+      tzMode: tzEl ? tzEl.value : "local",
+      expandRecurring: recurEl ? recurEl.value === "expand" : true,
+      includeHeader: headerEl ? headerEl.checked : true,
+      includeCancelled: cancelledEl ? cancelledEl.checked : true,
+      addBom: bomEl ? bomEl.checked : false
+    };
+  }
+
+  /* Applied once, at convert time, to decide which rows make it into
+     the output — as opposed to the formatting options above, which
+     are read fresh by buildCSV/renderPreview every time. */
+  function filterEvents(events, opts){
+    return events.filter(function(ev){
+      if (!opts.includeCancelled && ev.status === "CANCELLED") return false;
+      if (!opts.expandRecurring && ev.occIndex !== 0) return false;
+      return true;
+    });
+  }
+
+  function csvEscape(v, delimiter){
+    v = (v == null) ? "" : String(v);
+    if (v.indexOf('"') !== -1 || v.indexOf("\n") !== -1 || (delimiter && v.indexOf(delimiter) !== -1)){
+      return '"' + v.replace(/"/g, '""') + '"';
+    }
+    return v;
+  }
+
+  function buildCSV(events){
+    var opts = getOutputOptions();
+    var cols = state.columns.filter(function(c){ return c.included; });
+    var lines = [];
+    if (opts.includeHeader){
+      lines.push(cols.map(function(c){ return csvEscape(c.label, opts.delimiter); }).join(opts.delimiter));
+    }
+    events.forEach(function(ev){
+      lines.push(cols.map(function(c){ return csvEscape(eventToRow(ev, c.key, opts), opts.delimiter); }).join(opts.delimiter));
+    });
+    return lines.join("\r\n");
+  }
+
+  function renderPreview(){
+    var wrap = document.getElementById("previewWrap");
+    if (!state.events.length){ wrap.classList.remove("show"); return; }
+    wrap.classList.add("show");
+    var cols = state.columns.filter(function(c){ return c.included; });
+    var table = document.getElementById("previewTable");
+    var thead = "<thead><tr>" + cols.map(function(c){ return "<th>" + c.label + "</th>"; }).join("") + "</tr></thead>";
+    var maxRows = 50;
+    var previewOpts = getOutputOptions();
+    var rows = state.events.slice(0, maxRows).map(function(ev){
+      return "<tr>" + cols.map(function(c){
+        var v = eventToRow(ev, c.key, previewOpts) || "";
+        v = String(v).replace(/&/g,"&amp;").replace(/</g,"&lt;");
+        return "<td title=\"" + v.replace(/"/g,"&quot;") + "\">" + v + "</td>";
+      }).join("") + "</tr>";
+    }).join("");
+    table.innerHTML = thead + "<tbody>" + rows + "</tbody>";
+    var countEl = document.getElementById("previewCount");
+    countEl.textContent = state.events.length > maxRows
+      ? ("Showing first " + maxRows + " of " + state.events.length + " rows")
+      : (state.events.length + (state.events.length === 1 ? " row" : " rows"));
+  }
+
+  function renderFileList(){
+    var el = document.getElementById("filelist");
+    if (!state.files.length){ el.classList.remove("show"); el.innerHTML = ""; return; }
+    el.classList.add("show");
+    el.innerHTML = "";
+    state.files.forEach(function(f, idx){
+      var row = document.createElement("div");
+      row.className = "file-row" + (f.error ? " error" : "");
+      var left = document.createElement("div");
+      var nameSpan = document.createElement("span");
+      nameSpan.className = "fname";
+      nameSpan.textContent = f.name;
+      left.appendChild(nameSpan);
+      if (f.error){
+        var errSpan = document.createElement("span");
+        errSpan.className = "ferror";
+        errSpan.textContent = f.error;
+        left.appendChild(errSpan);
+      }
+      var right = document.createElement("div");
+      right.style.display = "flex";
+      right.style.alignItems = "center";
+      var meta = document.createElement("span");
+      meta.className = "fmeta";
+      meta.textContent = f.error ? "not converted" : (f.eventCount + (f.eventCount === 1 ? " event" : " events"));
+      var resultBox = document.createElement("div");
+      resultBox.className = "validate-result";
+      var validateBtn = document.createElement("button");
+      validateBtn.className = "fvalidate";
+      validateBtn.type = "button";
+      validateBtn.textContent = "Validate";
+      if (f.error){
+        validateBtn.disabled = true;
+        validateBtn.style.opacity = "0.4";
+        validateBtn.style.cursor = "default";
+      } else {
+        validateBtn.addEventListener("click", function(){
+          resultBox.classList.toggle("show");
+          if (resultBox.classList.contains("show") && !resultBox.dataset.rendered){
+            var report = validateICS(f.rawText || "");
+            resultBox.innerHTML = renderValidateReport(report);
+            resultBox.dataset.rendered = "1";
+          }
+        });
+      }
+      var remove = document.createElement("button");
+      remove.className = "fremove";
+      remove.type = "button";
+      remove.textContent = "Remove";
+      remove.addEventListener("click", function(){
+        state.files.splice(idx, 1);
+        recompute();
+      });
+      right.appendChild(meta);
+      right.appendChild(validateBtn);
+      right.appendChild(remove);
+      row.appendChild(left);
+      row.appendChild(right);
+      el.appendChild(row);
+      el.appendChild(resultBox);
+    });
+
+    document.getElementById("multiFileGroup").style.display = state.files.length > 1 ? "block" : "none";
+  }
+
+  function recompute(){
+    renderFileList();
+    var opts = document.getElementById("options");
+    var convertBtn = document.getElementById("convertBtn");
+
+    /* Any add/remove of a file invalidates whatever was previously
+       converted, so we clear the stale preview + hide the download
+       button. Otherwise a user could remove a file after converting
+       and still download a CSV that includes it (or vice versa). */
+    state.events = [];
+    document.getElementById("previewWrap").classList.remove("show");
+    document.getElementById("downloadBtn").style.display = "none";
+    var statusLine = document.getElementById("statusLine");
+    statusLine.textContent = "";
+    statusLine.classList.remove("show");
+
+    if (state.files.length){
+      opts.classList.add("show");
+      convertBtn.disabled = !state.files.some(function(f){ return !f.error; });
+    } else {
+      opts.classList.remove("show");
+      convertBtn.disabled = true;
+    }
+  }
+
+  function addFiles(fileListObj){
+    var arr = Array.prototype.slice.call(fileListObj);
+    var pending = arr.length;
+    if (!pending) return;
+    arr.forEach(function(file){
+      var reader = new FileReader();
+      reader.onload = function(e){
+        var result = parseICS(e.target.result, file.name);
+        state.files.push({
+          name: file.name,
+          error: result.error,
+          eventCount: result.events.length,
+          events: result.events,
+          rawText: e.target.result
+        });
+        pending--;
+        if (pending === 0) recompute();
+      };
+      reader.onerror = function(){
+        state.files.push({ name: file.name, error: "Could not read this file.", eventCount: 0, events: [] });
+        pending--;
+        if (pending === 0) recompute();
+      };
+      reader.readAsText(file);
+    });
+  }
+
+  /* ============================================================
+     WIRE UP UI
+     ============================================================ */
+
+  var dropzone = document.getElementById("dropzone");
+  var fileInput = document.getElementById("fileInput");
+
+  dropzone.addEventListener("click", function(){ fileInput.click(); });
+  dropzone.addEventListener("keydown", function(e){
+    if (e.key === "Enter" || e.key === " "){ e.preventDefault(); fileInput.click(); }
+  });
+  fileInput.addEventListener("change", function(){
+    if (fileInput.files.length) addFiles(fileInput.files);
+    fileInput.value = "";
+  });
+
+  ["dragenter","dragover"].forEach(function(evt){
+    dropzone.addEventListener(evt, function(e){
+      e.preventDefault(); e.stopPropagation();
+      dropzone.classList.add("drag");
+    });
+  });
+  ["dragleave","drop"].forEach(function(evt){
+    dropzone.addEventListener(evt, function(e){
+      e.preventDefault(); e.stopPropagation();
+      dropzone.classList.remove("drag");
+    });
+  });
+  dropzone.addEventListener("drop", function(e){
+    var dt = e.dataTransfer;
+    if (dt && dt.files && dt.files.length) addFiles(dt.files);
+  });
+
+  document.querySelectorAll('input[name="schema"]').forEach(function(r){
+    r.addEventListener("change", function(){ resetColumnsForSchema(); });
+  });
+
+  /* Options with visible per-column effects (delimiter, date format,
+     timezone, header row) re-render the preview live so it always
+     shows what the download will actually contain. */
+  document.querySelectorAll('input[name="delimiter"], input[name="dateformat"], input[name="tzmode"]')
+    .forEach(function(r){ r.addEventListener("change", renderPreview); });
+  ["headerRowCheck"].forEach(function(id){
+    document.getElementById(id).addEventListener("change", renderPreview);
+  });
+
+  document.getElementById("convertBtn").addEventListener("click", function(){
+    var merge = document.querySelector('input[name="merge"]:checked');
+    var mergeMode = merge ? merge.value : "combine";
+    var validFiles = state.files.filter(function(f){ return !f.error; });
+    var filterOpts = getOutputOptions();
+
+    if (mergeMode === "separate" && validFiles.length > 1){
+      validFiles.forEach(function(f){
+        var evs = filterEvents(f.events, filterOpts);
+        var csv = buildCSV(evs);
+        triggerDownload(csv, baseName(f.name) + ".csv", filterOpts.addBom);
+      });
+      state.events = validFiles.reduce(function(acc,f){ return acc.concat(filterEvents(f.events, filterOpts)); }, []);
+      renderPreview();
+      document.getElementById("downloadBtn").style.display = "none";
+      var statusLine = document.getElementById("statusLine");
+      statusLine.textContent = "Downloaded " + validFiles.length + " separate CSV files.";
+      statusLine.classList.add("show");
+    } else {
+      document.getElementById("statusLine").classList.remove("show");
+      state.events = validFiles.reduce(function(acc,f){ return acc.concat(filterEvents(f.events, filterOpts)); }, []);
+      state.events.sort(function(a,b){ return a.startMs - b.startMs; });
+      renderPreview();
+      var downloadBtn = document.getElementById("downloadBtn");
+      downloadBtn.style.display = "inline-flex";
+      downloadBtn.onclick = function(){
+        var csv = buildCSV(state.events);
+        var name = validFiles.length === 1 ? baseName(validFiles[0].name) + ".csv" : "calendar-events.csv";
+        triggerDownload(csv, name, getOutputOptions().addBom);
+      };
+    }
+  });
+
+  function baseName(name){
+    return name.replace(/\.[^.]+$/, "");
+  }
+
+  function triggerDownload(csvText, filename, addBom){
+    var blob = new Blob([addBom ? "\uFEFF" + csvText : csvText], { type: "text/csv;charset=utf-8;" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
+  }
+
+  resetColumnsForSchema();
+})();
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {"@type":"Question","name":"How do I convert an ICS file to CSV?","acceptedAnswer":{"@type":"Answer","text":"Upload the .ics file above. It's read in your browser, laid out as a table so you can check it, and you download the result as a CSV. No conversion happens on a server, so there's no wait for an upload or a processing queue."}},
+    {"@type":"Question","name":"What information from my calendar ends up in the CSV?","acceptedAnswer":{"@type":"Answer","text":"By default: event title, start date and time, end date and time, location, description, organizer, and attendees. You can drop any of these or reorder them before downloading."}},
+    {"@type":"Question","name":"Can I convert more than one ICS file at once?","acceptedAnswer":{"@type":"Answer","text":"Yes. Add several files in one go and either combine them into a single CSV or keep them as separate files."}},
+    {"@type":"Question","name":"Does this handle recurring events correctly?","acceptedAnswer":{"@type":"Answer","text":"Yes. Weekly, monthly, and custom recurrence rules are expanded into individual rows, and exceptions or cancelled occurrences are carried over correctly."}},
+    {"@type":"Question","name":"Is my calendar data uploaded to a server anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The file is read and converted locally in your browser using JavaScript. It's never sent anywhere."}},
+    {"@type":"Question","name":"What's the actual difference between an ICS file and a CSV file?","acceptedAnswer":{"@type":"Answer","text":"An ICS file is a structured text format built to describe calendar events, including recurrence rules and timezones. A CSV is a plain table format with no built-in concept of recurrence or timezone."}},
+    {"@type":"Question","name":"Can I convert a CSV file into an ICS calendar file?","acceptedAnswer":{"@type":"Answer","text":"Yes, using the CSV to ICS converter. Upload a CSV, map columns to event fields, and download a valid .ics file."}}
+  ]
+}
+</script>
+
+</body>
+</html>
