@@ -1929,6 +1929,282 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-M5PHSGN9"
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
+  <!-- 1. SOFTWARE APPLICATION -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "ICS to CSV Converter",
+  "url": "https://icstocsvconverter.com/",
+  "description": "Convert an ICS or iCalendar file to CSV in your browser. Handles recurring events, timezones, and Google Calendar exports. Nothing is uploaded, so it's free with no limits.",
+  "applicationCategory": "BrowserApplication",
+  "applicationSubCategory": "File Converter",
+  "operatingSystem": "Any (runs in web browser)",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "featureList": [
+    "Convert ICS or iCalendar files to CSV",
+    "Expands recurring events into individual rows",
+    "Converts event times to the correct timezone",
+    "Choose which columns are included and their order",
+    "Choose comma, semicolon, or tab delimiter",
+    "Choose ISO, US, or EU date format",
+    "Google Calendar-compatible column layout option",
+    "Convert multiple ICS files at once",
+    "No file size or file count limit",
+    "All processing happens locally in the browser, nothing is uploaded"
+  ],
+  "isAccessibleForFree": true,
+  "softwareRequirements": "No installation required",
+  "creator": {
+    "@type": "Organization",
+    "name": "IcsToCsvConverter",
+    "url": "https://icstocsvconverter.com/"
+  }
+}
+</script>
+
+<!-- 2. HOWTO -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to convert an ICS file to CSV",
+  "description": "Convert a calendar file to CSV in three steps, entirely in your browser.",
+  "step": [
+    {
+      "@type": "HowToStep",
+      "position": 1,
+      "name": "Add your file",
+      "text": "Drag your .ics file in, or click to browse. You can add several .ics files at once if you're combining calendars from different apps or accounts."
+    },
+    {
+      "@type": "HowToStep",
+      "position": 2,
+      "name": "Check the preview",
+      "text": "See your events laid out in a table before you download anything. Fix column order or date format if you need to."
+    },
+    {
+      "@type": "HowToStep",
+      "position": 3,
+      "name": "Download your CSV",
+      "text": "Opens straight in Excel, Google Sheets, or Numbers. No extra formatting step."
+    }
+  ]
+}
+</script>
+
+<!-- 3. FAQPAGE (replaces your existing one, this covers all 20 visible questions) -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How do I convert an ICS file to CSV?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Upload the .ics file above. It's read in your browser, laid out as a table so you can check it, and you download the result as a CSV. No conversion happens on a server, so there's no wait for an upload or a processing queue."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What information from my calendar ends up in the CSV?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "By default: event title, start date and time, end date and time, location, description, organizer, and attendees. You can drop any of these or reorder them before downloading, depending on what your spreadsheet or reporting tool needs."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I convert more than one ICS file at once?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Add several files in one go and either combine them into a single CSV or keep them as separate files, depending on what you're trying to do with the output."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is there a limit on file size or number of events?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. A calendar with a handful of events and one with several thousand go through the same process."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does this handle recurring events correctly?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Weekly, monthly, and custom recurrence rules are expanded into individual rows rather than a single summary row, and any exceptions or cancelled occurrences already recorded in the file are carried over correctly."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Will the event times be correct, or do I need to fix the timezone myself?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Times are converted to reflect the correct local time for each event. You shouldn't need to manually offset anything afterward."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What happens if my ICS file has missing fields or looks broken?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Events with missing optional fields, like no location or no description, just show up with those columns blank. If a file is badly malformed and can't be read at all, you'll get a clear message saying so rather than a CSV full of garbled text."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I export my Google Calendar as an ICS file before converting it?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "In Google Calendar, go to Settings, then Import and Export, then Export, which downloads a zip file containing your calendars as .ics files. Unzip it and upload the file you need here."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I convert an Outlook or Microsoft 365 calendar to CSV?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Export the calendar from Outlook as an iCalendar (.ics) file first, using File, then Save Calendar, then choosing iCalendar Format. Upload that file here rather than trying to export CSV directly from Outlook, which often drops fields like attendees or descriptions."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I convert an Apple Calendar or iCloud calendar to CSV?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Open the calendar in the Calendar app on a Mac, select the calendar you want, and use File, then Export, then Export. That saves an .ics file you can upload here. There isn't a way to export directly from iCloud's web interface, so this app-based export is the reliable route."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does this work with calendars exported from Thunderbird?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Thunderbird's calendar export produces a standard .ics file, and it's handled the same way as any other source."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I convert a meeting invite from Zoom, Calendly, or similar tools?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, as long as it's a standard .ics attachment, which is how most scheduling and meeting tools send calendar invites."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I convert a CSV file into an ICS calendar file?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, using the CSV to ICS converter. You upload a CSV, map your columns to event fields like title and start time, and download a valid .ics file you can import into any calendar app."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I import the converted CSV straight into Google Sheets or Excel?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. The output is a standard CSV, so it opens directly in Excel, Google Sheets, or Numbers without any extra import steps."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "I need to bulk-import events into Google Calendar from a spreadsheet. Is that possible?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "That's the reverse process. Use the CSV to ICS converter to turn your spreadsheet into an .ics file, then import that file through Google Calendar's Settings, then Import and Export."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is my calendar data uploaded to a server anywhere?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. The file is read and converted locally in your browser using JavaScript. It's never sent anywhere, which also means there's nothing stored after you close the tab."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do you keep a copy of the files people convert?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No, and there's no mechanism to, since the conversion never touches a server in the first place."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What's the actual difference between an ICS file and a CSV file?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "An ICS file, also called iCalendar, is a structured text format built specifically to describe calendar events, including recurrence rules and timezones, so different calendar apps can exchange them. A CSV is a plain, general purpose table format that any spreadsheet or database can read, but it has no built-in concept of a recurring event or a timezone, which is why a direct conversion needs to interpret those details rather than just copy them over."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does this work on a phone, or only on a desktop browser?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "It runs in any modern browser, including on a phone, though checking and rearranging a large table of events is easier on a bigger screen."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is there a way to do this from the command line, or a library I can use in code instead of the browser tool?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "If you're working with ICS files programmatically, most languages have a maintained library for reading them, for example icalendar in Python. This tool is aimed at people who want a result without writing code, but the underlying parsing logic follows the same iCalendar standard, RFC 5545, either way."
+      }
+    }
+  ]
+}
+</script>
+
+<!-- 4. WEBSITE -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "IcsToCsvConverter",
+  "url": "https://icstocsvconverter.com/",
+  "description": "Free browser-based tools for converting between ICS calendar files and CSV spreadsheets."
+}
+</script>
+
+<!-- 5. BREADCRUMBLIST -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "ICS to CSV Converter",
+      "item": "https://icstocsvconverter.com/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "CSV to ICS Converter",
+      "item": "https://icstocsvconverter.com/csv-to-ics/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "ICS File Validator",
+      "item": "https://icstocsvconverter.com/ics-validator/"
+    }
+  ]
+}
+</script>
 
 </body>
 </html>
